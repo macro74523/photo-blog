@@ -102,31 +102,31 @@ const getPhotosCacheKeys = (options: PhotoQueryOptions = {}) => {
 };
 
 export const revalidatePhotosKey = () =>
-  revalidateTag(KEY_PHOTOS);
+  revalidateTag(KEY_PHOTOS, 'layout');
 
 export const revalidateAlbumsKey = () =>
-  revalidateTag(KEY_ALBUMS);
+  revalidateTag(KEY_ALBUMS, 'layout');
 
 export const revalidateTagsKey = () =>
-  revalidateTag(KEY_TAGS);
+  revalidateTag(KEY_TAGS, 'layout');
 
 export const revalidateRecipesKey = () =>
-  revalidateTag(KEY_RECIPES);
+  revalidateTag(KEY_RECIPES, 'layout');
 
 export const revalidateCamerasKey = () =>
-  revalidateTag(KEY_CAMERAS);
+  revalidateTag(KEY_CAMERAS, 'layout');
 
 export const revalidateLensesKey = () =>
-  revalidateTag(KEY_LENSES);
+  revalidateTag(KEY_LENSES, 'layout');
 
 export const revalidateFilmsKey = () =>
-  revalidateTag(KEY_FILMS);
+  revalidateTag(KEY_FILMS, 'layout');
 
 export const revalidateFocalLengthsKey = () =>
-  revalidateTag(KEY_FOCAL_LENGTHS);
+  revalidateTag(KEY_FOCAL_LENGTHS, 'layout');
 
 export const revalidateYearsKey = () =>
-  revalidateTag(KEY_YEARS);
+  revalidateTag(KEY_YEARS, 'layout');
 
 export const revalidateAllKeys = () => {
   revalidatePhotosKey();
@@ -151,7 +151,7 @@ export const revalidateAllKeysAndPaths = () => {
 
 export const revalidatePhoto = (photoId: string) => {
   // Tags
-  revalidateTag(photoId);
+  revalidateTag(photoId, 'layout');
   revalidateYearsKey();
   revalidateCamerasKey();
   revalidateLensesKey();
