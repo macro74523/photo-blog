@@ -18,35 +18,43 @@ export async function GET(
   _: Request,
   { params }: { params: Promise<{ key: string }> },
 ) {
-  const { key } = await params;
+  try {
+    const { key } = await params;
 
-  const session = await auth();
-  if (session?.user && key) {
-    let client;
-    let command;
+    const session = await auth();
+    if (session?.user && key) {
+      let client;
+      let command;
 
-    switch (CURRENT_STORAGE) {
-      case 'cloudflare-r2':
-        client = cloudflareR2Client();
-        command = cloudflareR2PutObjectCommandForKey(key);
-        break;
-      case 'minio':
-        client = minioClient();
-        command = minioPutObjectCommandForKey(key);
-        break;
-      default:
-        client = awsS3Client();
-        command = awsS3PutObjectCommandForKey(key);
-        break;
+      switch (CURRENT_STORAGE) {
+        case 'cloudflare-r2':
+          client = cloudflareR2Client();
+          command = cloudflareR2PutObjectCommandForKey(key);
+          break;
+        case 'minio':
+          client = minioClient();
+          command = minioPutObjectCommandForKey(key);
+          break;
+        default:
+          client = awsS3Client();
+          command = awsS3PutObjectCommandForKey(key);
+          break;
+      }
+      
+      const url = await getSignedUrl(client, command, { expiresIn: 3600 });
+
+      return new Response(
+        url,
+        { headers: { 'content-type': 'text/plain' } },
+      );
+    } else {
+      return new Response('Unauthorized request', { status: 401 });
     }
-    
-    const url = await getSignedUrl(client, command, { expiresIn: 3600 });
-
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
     return new Response(
-      url,
-      { headers: { 'content-type': 'text/plain' } },
+      `Failed to generate presigned URL: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { status: 500 },
     );
-  } else {
-    return new Response('Unauthorized request', { status: 401 });
   }
 }
