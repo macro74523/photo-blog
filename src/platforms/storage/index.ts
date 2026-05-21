@@ -118,11 +118,19 @@ export const uploadFromClientViaPresignedUrl = async (
     ? `${fileNameBase}-${generateStorageId()}.${extension}`
     : `${fileNameBase}.${extension}`;
 
-  const url = await fetch(`${PATH_API_PRESIGNED_URL}/${key}`)
-    .then((response) => response.text());
+  const response = await fetch(`${PATH_API_PRESIGNED_URL}/${key}`);
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    throw new Error(`Failed to get presigned URL: ${response.status} ${errorText}`);
+  }
+  const url = await response.text();
 
-  return fetch(url, { method: 'PUT', body: file })
-    .then(() => `${baseUrlForStorage(CURRENT_STORAGE)}/${key}`);
+  const uploadResponse = await fetch(url, { method: 'PUT', body: file });
+  if (!uploadResponse.ok) {
+    throw new Error(`Failed to upload file to storage: ${uploadResponse.status}`);
+  }
+
+  return `${baseUrlForStorage(CURRENT_STORAGE)}/${key}`;
 };
 
 export const uploadFileFromClient = async (
